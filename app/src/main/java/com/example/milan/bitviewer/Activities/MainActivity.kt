@@ -17,31 +17,40 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mBitViewModel: BitViewModel
-    var symbols:List<Coin> = emptyList()
-
+    var mSymbols:List<Coin> = emptyList()
     var mAdapterViewPager: MyPagerAdapter? = null
+    var mHandler: Handler? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        //initializing viewpager and viewmodel
         val vpPager = findViewById<View>(R.id.vpPager) as ViewPager
         this.mBitViewModel = ViewModelProviders.of(this).get(BitViewModel::class.java)
-        mBitViewModel.allCoins!!.observe(this, Observer { current ->
-            // Update the cached copy of the words in the adapter.
-            mBitViewModel.setList(symbols)
-            symbols = current!!
-            println(symbols)
-            mAdapterViewPager!!.setSymbols(symbols)
-            mAdapterViewPager!!.notifyDataSetChanged()
 
-            //println(symbols)
-        })
+        //initialize viewpager/adapter
+        mAdapterViewPager = MyPagerAdapter(supportFragmentManager,mSymbols)
+        vpPager.adapter = mAdapterViewPager
 
+        //fab that goes to Addsymbol activity
         fab.setOnClickListener { view ->
             startActivity(Intent(this, AddSymbol::class.java))
         }
-        mAdapterViewPager = MyPagerAdapter(supportFragmentManager,symbols)
-        vpPager.adapter = mAdapterViewPager
-        useHandler()
+
+        //Observer of the allcoins list that reacts on changes in the database
+        mBitViewModel.allCoins!!.observe(this, Observer { current ->
+
+            //local list gets updated and set in the viewmodel
+            mSymbols = current!!
+            mBitViewModel.setList(mSymbols)
+
+            // set the list in the viewpager so that it knows what coins need to be displayed
+            mAdapterViewPager!!.setSymbols(mSymbols)
+            mAdapterViewPager!!.notifyDataSetChanged()
+        })
+       // start the background update task
+        getAll()
     }
 
     override fun onResume() {
@@ -49,15 +58,8 @@ class MainActivity : AppCompatActivity() {
         mAdapterViewPager!!.notifyDataSetChanged()
     }
 
-    fun getall(){
-        for (item in symbols) {
-            mBitViewModel.requestData(item.name)
-        }
 
-    }
-
-    var mHandler: Handler? = null
-    fun useHandler() {
+    fun getAll() {
         mHandler = Handler()
         mHandler!!.postDelayed(mRunnable, 10000)
     }
@@ -65,8 +67,10 @@ class MainActivity : AppCompatActivity() {
     private val mRunnable = object : Runnable {
 
         override fun run() {
-            println( "Call asynctask")
-            getall()
+            println("Call asynctask")
+            for (item in mSymbols) {
+                mBitViewModel.requestData(item.name)
+            }
             mHandler!!.postDelayed(this, 10000)
         }
     }

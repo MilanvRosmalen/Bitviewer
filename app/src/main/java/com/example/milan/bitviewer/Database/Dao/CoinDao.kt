@@ -14,6 +14,4 @@ interface CoinDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(coin: Coin)
 
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun update(obj: Coin)
 }

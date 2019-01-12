@@ -24,6 +24,7 @@ class BitViewModel(application: Application) : AndroidViewModel(application) {
     var allPrices:LiveData<List<Price>>?= null
     private var coinList= emptyList<Coin>()
     private val repository: BitRepository
+
     init {
         val priceDao = BitRoomDatabase.getDatabase(application, scope).priceDao()
         val coinDao = BitRoomDatabase.getDatabase(application, scope).coinDao()
@@ -36,6 +37,8 @@ class BitViewModel(application: Application) : AndroidViewModel(application) {
     fun requestData(symbol:String) {
         val service = ApiService.retrofit.create(ApiService::class.java)
 
+        // symbol is the instrument that needs to get fetched, count is how many entries of the tradebook it gets.
+        // reverse true gives the most recent price first
         val call = service.getTradebook(symbol,"1","true")
 
         // when an api call is made convert to another object and insert in the viewmodel
@@ -44,17 +47,13 @@ class BitViewModel(application: Application) : AndroidViewModel(application) {
                 val Data = response.body()
                 println(response.headers().get("X-RateLimit-Remaining"))
 
+                //if the coin is not yet in the list of coins add it do the database
                 if(coinList.any{it -> it.name != Data!![0].symbol!!}|| coinList.isEmpty()){
                     insertCoin(Coin(Data!![0].symbol!!))
                 }
 
-                insertPrice(
-                    Price(
-                        Data!![0].symbol!!,
-                        Data!![0].price!!,
-                        Data!![0].tickDirection!!
-                    )
-                )
+                //insert the price in the database
+                insertPrice(Price(Data!![0].symbol!!, Data!![0].price!!, Data!![0].tickDirection!!))
             }
 
             override fun onFailure(call: Call<List<TradebookData>>, t: Throwable) {
@@ -71,9 +70,6 @@ class BitViewModel(application: Application) : AndroidViewModel(application) {
     }
     fun insertCoin(coin: Coin) = scope.launch(Dispatchers.IO) {
         repository.insertCoin(coin)
-    }
-    fun update(item: Coin){
-        repository.update(item)
     }
 
     override fun onCleared() {

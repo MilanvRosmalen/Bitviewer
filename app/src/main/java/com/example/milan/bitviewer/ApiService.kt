@@ -9,12 +9,8 @@ import retrofit2.http.Query
 
 
 interface ApiService {
-    /**
-     * The string in the GET annotation is added to the BASE_URL.
-     * It simply represents the designed layout of the URLs of the numbersapi.com website,
-     * refer to it in a browser and try. This request will deliver a json stream based on month and
-     * day of month. It will be put in a Numbertrivia object by Retrofit.
-     */
+    // symbol is the instrument that needs to get fetched, count is how many entries of the tradebook it gets.
+    // reverse true gives the most recent price first
 
     @GET("trade")
     fun getTradebook(@Query("symbol") symbol: String,

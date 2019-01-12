@@ -13,6 +13,4 @@ interface PriceDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(price: Price)
 
-    @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun update(obj: Price)
 }

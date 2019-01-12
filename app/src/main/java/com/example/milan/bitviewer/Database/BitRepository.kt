@@ -27,8 +27,4 @@ class BitRepository(private val priceDao: PriceDao, private val coinDao: CoinDao
         coinDao.insert(coin)
     }
 
-    @WorkerThread
-    fun update(coin: Coin) {
-        coinDao.update(coin)
-    }
 }

@@ -11,45 +11,37 @@ import android.widget.Button
 import android.widget.Spinner
 import com.example.milan.bitviewer.BitViewModel
 import com.example.milan.bitviewer.R
-import java.util.ArrayList
 
-class AddSymbol(): AppCompatActivity(), AdapterView.OnItemSelectedListener {
-    //private val model = viewmodel
-    private var mSpinner: Spinner? = null
+
+class AddSymbol: AppCompatActivity(), AdapterView.OnItemSelectedListener {
+
     private var mStatus: String? = null
     private lateinit var mBitViewModel: BitViewModel
+
+    //spinner elements
+    private var mSymbols: ArrayList<String> = arrayListOf("XBTUSD","ETHUSD","EOSH19","XRPH19","ADAH19","BCHH19","LTCH19","TRXH19")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.add_item)
-        mSpinner = findViewById(R.id.spinner)
+        val spinner:Spinner = findViewById(R.id.spinner)
         val button: Button = findViewById(R.id.button)
+        this.mBitViewModel = ViewModelProviders.of(this).get(BitViewModel::class.java)
+
         // Spinner click listener
-        mSpinner!!.onItemSelectedListener = this
-        // Spinner Drop down elements
-        val symbols = ArrayList<String>()
-        symbols.add("XBTUSD")
-        symbols.add("ETHUSD")
-        symbols.add("EOSH19")
-        symbols.add("XRPH19")
-        symbols.add("ADAH19")
-        symbols.add("BCHH19")
-        symbols.add("LTCH19")
-        symbols.add("TRXH19")
+        spinner.onItemSelectedListener = this
         // Creating adapter for spinner
-        val dataAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, symbols)
+        val dataAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, mSymbols)
         // Drop down layout style - list view with radio button
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        this.mBitViewModel = ViewModelProviders.of(this).get(BitViewModel::class.java)
         // attaching data adapter to spinner
-        mSpinner!!.adapter = dataAdapter
+        spinner.adapter = dataAdapter
+
         button.setOnClickListener{
             val intent = Intent(this, MainActivity::class.java)
             mBitViewModel.requestData(mStatus!!)
-
             startActivity(intent)
         }
-
     }
 
     override fun onItemSelected(parent: AdapterView<*>, view: View, position: Int, id: Long) {
@@ -58,7 +50,7 @@ class AddSymbol(): AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     }
     override fun onNothingSelected(p0: AdapterView<*>?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
 }

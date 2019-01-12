@@ -3,6 +3,7 @@ package com.example.milan.bitviewer.Database.Objects
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
+//The data model that gets sent from the REST server
 class TradebookData {
 
     @SerializedName("timestamp")
